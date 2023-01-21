@@ -44,7 +44,7 @@ extension XliffTableViewController: NSCollectionViewDelegate {
             let item = collectionView.item(at: indexPath) as? TabCollectionViewItem else {
                 return
         }
-        item.label.backgroundColor = .white
+        item.highlightState = .forSelection
         xliffFilePath = xliffFileURLs[indexPath.item].path
         updateDatasourceWithFilters(flags: currentFilterFlags)
     }

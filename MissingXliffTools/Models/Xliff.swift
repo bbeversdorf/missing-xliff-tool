@@ -34,13 +34,19 @@ class File {
                 return nil
         }
         var translatedPath = original
+        translatedPath = translatedPath.replacingOccurrences(of: "en.lproj", with: "\(targetLanguage).lproj")
         translatedPath = translatedPath.replacingOccurrences(of: "Base.lproj", with: "\(targetLanguage).lproj")
         translatedPath = translatedPath.replacingOccurrences(of: ".storyboard", with: ".strings")
 
-        if translatedPath.contains("Info.plist") {
-            translatedPath = translatedPath.replacingOccurrences(of: "Info.plist", with: "\(targetLanguage).lproj/InfoPlist.strings")
+        if translatedPath.contains("Info.plist") || translatedPath.contains("InfoPlist.strings") {
+            translatedPath = translatedPath.replacingOccurrences(of: "Info.plist", with: "InfoPlist.strings")
         } else {
             translatedPath = translatedPath.replacingOccurrences(of: "Targets/Makani", with: "\(targetLanguage).lproj")
+        }
+        translatedPath = translatedPath.replacingOccurrences(of: "\(targetLanguage).lproj/\(targetLanguage).lproj", with: "Resources/\(targetLanguage).lproj")
+
+        if translatedPath.contains("Labels.strings") && !translatedPath.contains("Localize") {
+            translatedPath = translatedPath.replacingOccurrences(of: "Makani/Resources/", with: "Makani/Resources/Localize/")
         }
         return translatedPath
     }

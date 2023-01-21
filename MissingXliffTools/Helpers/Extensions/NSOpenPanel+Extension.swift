@@ -12,10 +12,10 @@ extension NSOpenPanel {
     var selectXliff: [URL]? {
         title = "Select Xliff Files"
         allowsMultipleSelection = true
-        canChooseDirectories = false
+        canChooseDirectories = true
         canChooseFiles = true
         canCreateDirectories = false
-        allowedFileTypes = ["xliff"];
+        allowedFileTypes = ["xliff"]
         return runModal() == .OK ? urls : nil
     }
     var selectCSV: [URL]? {
@@ -24,7 +24,7 @@ extension NSOpenPanel {
         canChooseDirectories = false
         canChooseFiles = true
         canCreateDirectories = false
-        allowedFileTypes = ["csv"];
+        allowedFileTypes = ["csv"]
         return runModal() == .OK ? urls : nil
     }
     var selectProjectDirectory: URL? {
@@ -33,7 +33,7 @@ extension NSOpenPanel {
         canChooseDirectories = true
         canChooseFiles = false
         canCreateDirectories = false
-        allowedFileTypes = [];
+        allowedFileTypes = []
         return runModal() == .OK ? urls.first : nil
     }
 }

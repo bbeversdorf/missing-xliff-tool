@@ -15,6 +15,7 @@ struct FileHandler {
             guard element.transUnit.target?.value?.isEmpty == false &&
                 completeDatasource.first(where: {
                     $0.transUnit.id == element.transUnit.id &&
+                        $0.file.targetLanguage == element.file.targetLanguage &&
                         $0.transUnit.target?.value?.isEmpty != false
                 }) != nil else {
                     continue
@@ -53,6 +54,11 @@ struct FileHandler {
                 print(error)
             }
         } else {
+            do {
+                try FileManager.default.createDirectory(atPath: URL(fileURLWithPath: filePath).deletingLastPathComponent().path, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                print("Can't create directory \(error)")
+            }
             do {
                 try data.write(to: URL(fileURLWithPath: filePath), options: .atomic)
             } catch {

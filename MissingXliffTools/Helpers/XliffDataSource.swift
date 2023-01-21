@@ -12,17 +12,17 @@ struct XliffDataSource {
     static func buildXliff(xliffFilePath: String?, csvFileURLs: [URL]) -> [TableRowData] {
         guard let xliffFilePath = xliffFilePath else {
             return []
-        }
+        } 
         let xliff = XliffFileParser.parse(filePath: xliffFilePath)
         var data = xliff?.files.flatMap({ file in
-            return file.body.transUnits.flatMap { TableRowData(file: file, transUnit: $0, dataTypes: [.xliff]) }
+            return file.body.transUnits.compactMap { TableRowData(file: file, transUnit: $0, dataTypes: [.xliff]) }
         }) ?? []
         guard let targetLanguage = xliff?.files.first?.targetLanguage, let csvFilePath = csvFileURLs.first(where: { $0.path.contains("\(targetLanguage).csv") })?.path else {
             return data
         }
-        let csvXliff = CSVFileParser.parse(filePath: csvFilePath)
+        let csvXliff = CSVFileParser.parse(filePath: csvFilePath, targetLanguage: targetLanguage)
         csvXliff?.files.forEach { file in
-            let newData = file.body.transUnits.flatMap { TableRowData(file: file, transUnit: $0, dataTypes: [.csv]) }
+            let newData = file.body.transUnits.compactMap { TableRowData(file: file, transUnit: $0, dataTypes: [.csv]) }
             data.append(contentsOf: newData)
         }
         return data
@@ -41,7 +41,7 @@ struct XliffDataSource {
             return []
         }
         emptyValues.forEach { index in
-            guard let id = dataSource[index].transUnit.id, let source = dataSource[index].transUnit.source else {
+            guard let id = dataSource[index].transUnit.id?.trimmingCharacters(in: .whitespacesAndNewlines), let source = dataSource[index].transUnit.source else {
                 return
             }
             let newTarget = completeDatasource.first(where: { $0.transUnit.id == id && $0.transUnit.target?.value?.isEmpty == false })?.transUnit.target?.value
@@ -50,7 +50,7 @@ struct XliffDataSource {
             }
             let newTargetSource = completeDatasource.first(where: { $0.transUnit.source?.value == source.value && $0.transUnit.target?.value?.isEmpty == false })?.transUnit.target?.value
             if newTargetSource?.isEmpty == false {
-                updateTarget(using: dataSource, at: index, with: newTarget)
+                updateTarget(using: dataSource, at: index, with: newTargetSource)
             }
         }
         return dataSource

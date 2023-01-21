@@ -11,12 +11,12 @@ import Cocoa
 class CSVFileParser: NSObject {
     private var parsedXliff = Xliff()
     private override init() { }
-    static func parse(filePath: String) -> Xliff? {
+    static func parse(filePath: String, targetLanguage: String) -> Xliff? {
         let fileParser = CSVFileParser()
-        fileParser.parser(filePath: filePath)
+        fileParser.parser(filePath: filePath, targetLanguage: targetLanguage)
         return fileParser.parsedXliff
     }
-    func parser(filePath: String) {
+    func parser(filePath: String, targetLanguage: String) {
         let csvString = (try? String.init(contentsOfFile: filePath)) ?? ""
         let csv = try? CSV(string: csvString)
         let xliff = Xliff()
@@ -33,7 +33,7 @@ class CSVFileParser: NSObject {
                 return
             }
             if row[0] != file?.original {
-                file = File(original: row[0], sourceLanguage: "en", dataType: nil, targetLanguage: "es")
+                file = File(original: row[0], sourceLanguage: "en", dataType: nil, targetLanguage: targetLanguage)
                 guard let file = file else {
                     return
                 }
@@ -47,11 +47,11 @@ class CSVFileParser: NSObject {
             // We need to reverse escaped \n
             let id = row[1].replacingOccurrences(of: "\\n", with: "\n")
             let source = row[2].replacingOccurrences(of: "\\n", with: "\n")
-            let note = row[3].replacingOccurrences(of: "\\n", with: "\n")
+            let note = row[4].replacingOccurrences(of: "\\n", with: "\n")
             let transUnit = TransUnit(id: id)
             transUnit.source = Source(value: source)
             transUnit.note = Note(value: note)
-            var target: String? = row[4]
+            var target: String? = row[3]
             target = target?.replacingOccurrences(of: "\r", with: "")
             target = target?.replacingOccurrences(of: "\\n", with: "\n")
             target = target?.isEmpty != false ? nil : target

@@ -115,4 +115,8 @@ extension XliffTableViewController {
         alert.messageText = "This feature has not been implemented yet."
         alert.runModal()
     }
+
+    @IBAction func menuSetAsPrototype(_ sender: Any) {
+        print("You clicked Item 1 for row \(self.tableView.clickedRow)")
+    }
 }

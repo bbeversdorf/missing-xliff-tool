@@ -9,7 +9,7 @@
 import Cocoa
 
 class FileSelectViewController: NSViewController {
-    static let tableViewSegueIdentifier = NSStoryboardSegue.Identifier(rawValue: "tableViewSegue")
+    static let tableViewSegueIdentifier = NSStoryboardSegue.Identifier("tableViewSegue")
 
     private var xliffURLs: [URL] = []
     private var csvURLs: [URL] = []
@@ -33,7 +33,27 @@ class FileSelectViewController: NSViewController {
         guard let vc = segue.destinationController as? XliffTableViewController else {
             return
         }
-        vc.xliffFileURLs = xliffURLs.sorted(by: { $0.path < $1.path} )
+        var urls: Set<URL> = Set()
+        let fileManager = FileManager.default
+        xliffURLs.forEach { url in
+            if (url.isFileURL) {
+                var isDir: ObjCBool = false
+                if (fileManager.fileExists(atPath: url.path, isDirectory: &isDir)) {
+                    if isDir.boolValue {
+                        // We need to find all of the xliff files in this directory
+                        let enumerator = fileManager.enumerator(atPath: url.path)
+                        guard let filePaths = enumerator?.allObjects as? [String] else {
+                            return
+                        }
+                        let xliffFiles = filePaths.filter { $0.contains(".xliff") } .compactMap { URL(fileURLWithPath: url.path + "/" + $0) }
+                        xliffFiles.forEach { urls.insert($0) }
+                    } else {
+                        urls.insert(url)
+                    }
+                }
+            }
+        }
+        vc.xliffFileURLs = urls.sorted(by: { $0.path < $1.path} )
         vc.xliffFilePath = xliffFileNameTextfield?.stringValue
         vc.csvFileURLs = csvURLs.sorted(by: { $0.path < $1.path} )
         if let urlPath = projectDirectoryNameTextfield?.stringValue,
